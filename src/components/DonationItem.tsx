@@ -11,7 +11,7 @@ export default function DonationItem({ chainName, contractAddress, imageUrl }: D
                 <img src={imageUrl} className="w-6 h-6" />
                 <p className="text-white slow-font">{chainName}</p>
             </div>
-            <p className="slow-font text-white">{contractAddress}</p>
+            <p className="font-mono text-base text-white break-all">{contractAddress}</p>
         </div>
     )
 }

@@ -22,16 +22,21 @@ export default function Bridge() {
             setButtonValue("Exchange Now")
         }
         else if (buttonValue === "Exchange Now") {
-            await bridgeRequest(fromChain, toChain, value);
+            setLoading(true);
+            try {
+                await bridgeRequest(fromChain, toChain, value);
+            } finally {
+                setLoading(false);
+            }
         }
     }
 
     return (
-         <div className="w-full shadow-2xl rounded-2xl p-6 bg-linear-to-br from-gray-800 to-black">
+         <div className="h-[500px] p-6 shadow-2xl rounded-2xl bg-linear-to-br from-gray-800 to-black">
             <div className="flex items-end gap-4">
-                <h1 className="pl-2 text-4xl slow-font text-white">BridgeNet</h1>
-                <img src="/logo/ethereum.png" className="w-6 h-6" />
-                <img src="/logo/polygon.png" className="w-6 h-6" />
+                <h1 className="pl-2 text-4xl text-white slow-font">BridgeNet</h1>
+                <img src="/logo/11155111-logo.png" className="w-6 h-6" />
+                <img src="/logo/80002-logo.png" className="w-6 h-6" />
                 <img src="/logo/binance-smart-chain-bsc.png" className="w-6 h-6" />
             </div>
 
@@ -50,11 +55,11 @@ export default function Bridge() {
                 readOnly={true}
             />
 
-            <p className="slow-font text-white my-3">Connected Wallet: {connectedWallet}</p>
+            <p className="my-3 text-white slow-font">Connected Wallet: {connectedWallet}</p>
 
             <button 
                 disabled={loading}
-                className="p-3 rounded-lg w-full bg-white text-black slow-font text-lg leading-5 pb-4 hover:bg-gray-100 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full p-3 pb-4 text-lg leading-5 text-black transition-colors bg-white rounded-lg slow-font hover:bg-gray-100 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 onClick={handleBridgeButton}
             >
                 {loading ? "Processing..." : buttonValue}

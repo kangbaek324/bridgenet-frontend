@@ -2,9 +2,9 @@ import DonationItem from "./DonationItem"
 
 export default function Donation() {
     return (
-        <div className="w-full h-full shadow-2xl rounded-2xl p-6 bg-gradient-to-br from-gray-800 to-black flex flex-col">
-            <h1 className="text-4xl slow-font text-white pb-2">Donation</h1>
-            <p className="slow-font text-white pb-4">Donation For Me 💫</p>
+        <div className="w-[480px] h-[500px] shadow-2xl rounded-2xl p-6 bg-gradient-to-br from-gray-800 to-black flex flex-col">
+            <h1 className="pb-2 text-4xl text-white slow-font">Donation</h1>
+            <p className="pb-4 text-white slow-font">Donation For Me 💫</p>
             
             <DonationItem
                 chainName="My Address"
@@ -12,9 +12,9 @@ export default function Donation() {
                 imageUrl="/logo/ethereum.png"
             />
 
-            <p className="slow-font text-white mt-6 pb-4">Donation For Contract 🌐</p>
+            <p className="pb-4 mt-6 text-white slow-font">Donation For Contract 🌐</p>
             
-            <div className="flex gap-3 flex-col max-h-60 overflow-y-scroll scroll-auto flex-1 custom-scrollbar">   
+            <div className="flex flex-col flex-1 gap-3 overflow-y-auto scrollbar-hide max-h-60r">   
                 <DonationItem 
                     chainName="BSC"
                     contractAddress="Not yet"

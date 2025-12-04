@@ -29,9 +29,9 @@ export default function BridgeItem({
     return (
         <div className="flex py-6 bg-[#333333] p-5 color rounded-lg mt-5">
             <div className="w-[30%]">
-                <p className="mb-3 text-slate-400 text-sm font-light">{direction}</p>
+                <p className="mb-3 text-sm font-light text-slate-400">{direction}</p>
                 <input 
-                    className="border-0 focus:outline-0 text-4xl text-white mbc-font bg-transparent" 
+                    className="text-4xl text-white bg-transparent border-0 focus:outline-0 mbc-font" 
                     placeholder="0.00" 
                     type="number" 
                     min={0.00001}
