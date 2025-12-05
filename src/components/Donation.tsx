@@ -9,7 +9,7 @@ export default function Donation() {
             <DonationItem
                 chainName="My Address"
                 contractAddress="0x0A6B6a4d7ad63E73D9BC630B6B4C8b66A8F3DCEE"
-                imageUrl="/logo/ethereum.png"
+                imageUrl="/logo/11155111-logo.png"
             />
 
             <p className="pb-4 mt-6 text-white slow-font">Donation For Contract 🌐</p>
@@ -23,12 +23,12 @@ export default function Donation() {
                 <DonationItem 
                     chainName="Sepolia"
                     contractAddress="0x04Ff4586a5Fa21BC950Eb441B28Eb05E5Bd73E5b"
-                    imageUrl="/logo/ethereum.png"
+                    imageUrl="/logo/11155111-logo.png"
                 />
                 <DonationItem 
                     chainName="Amoy"
                     contractAddress="0xF8862C3829FB4BF2E21CECc6423a55a4Cd325Cb9"
-                    imageUrl="/logo/polygon.png"
+                    imageUrl="/logo/80002-logo.png"
                 />
             </div>
         </div>

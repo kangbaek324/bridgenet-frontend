@@ -1,6 +1,26 @@
+import { useEffect, useState } from "react";
 import ContractItem from "./ContractItem";
+import axios from "axios";
 
 export default function Contract() {
+    const [chainInfo, setChainInfo] = useState([]);
+
+    const fetchContractInfo = async () => {
+        try {
+            const res = await axios.get("http://localhost:8081/api/bridge/chain")
+            setChainInfo(res.data.data.list);
+            console.log(chainInfo);
+        } catch(err) {
+
+        } finally {
+
+        }
+    }
+
+    useEffect(() => {
+        fetchContractInfo();
+    }, []);
+
     return (
         <div className="flex flex-col h-full">
             <header className="mb-5">
@@ -12,10 +32,12 @@ export default function Contract() {
                 </div>
             </header>
             <main className="grid grid-cols-2 gap-4 h-[574px] content-start overflow-y-auto scrollbar-hide">
-                <ContractItem></ContractItem>
-                <ContractItem></ContractItem>
-                <ContractItem></ContractItem>
-                <ContractItem></ContractItem>
+                {chainInfo.map((chain, index) => (
+                    <ContractItem
+                        key={index}
+                        chainInfo={chain}
+                    />
+                ))}
             </main>
         </div>
     );
