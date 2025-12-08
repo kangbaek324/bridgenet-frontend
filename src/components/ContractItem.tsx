@@ -1,6 +1,57 @@
+import axios from "axios";
 import { formatEther } from "ethers";
+import { useState } from "react";
 
 export default function ContractItem({ chainInfo }) {
+    const [loading, setLoading] = useState(false);
+    const [fetchStatus, setFetchStatus] = useState("");
+    const [hash, setHash] = useState("");
+
+    const fetchRequestWhiteList = async (chainId: string) => {
+        try {
+            setFetchStatus("");
+            setHash("");
+            setLoading(true)
+            if (!localStorage.getItem("accessToken")) {
+                alert("Please Login in My page");
+                return;
+            }
+            
+            const res = await axios.post(
+            `http://localhost:8081/api/bridge/chain/${chainId}/contract/whitelist`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+                }
+            }
+            );
+            
+            setHash(res.data.data.transaction_hash);
+            setFetchStatus("success")
+        } catch(err) {
+            console.error(err);
+            setFetchStatus("fail");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const fetchContractBalance = async (chainId: string) => {
+        try {
+            setFetchStatus("");
+            setHash("");
+            setLoading(true);
+            await axios.get(`http://localhost:8081/api/bridge/chain/${chainId}/contract/balance`)
+            setFetchStatus("success");
+        } catch(err) {
+            console.error(err);
+            setFetchStatus("fail");
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <div className="w-full p-4 border border-gray-700 rounded-lg bg-gray-800/50 backdrop-blur-sm">
             <div className="flex items-center gap-3 mb-4">
@@ -31,14 +82,34 @@ export default function ContractItem({ chainInfo }) {
                         <p className="text-xs text-gray-400">{chainInfo.unit}</p>
                     </div>
                 </div>
+
+                {fetchStatus === "success" && (
+                    <p className="ml-2 text-green-500 break-all slow-font">
+                        Request Success <br /> Tx Hash: {hash}
+                    </p>
+                )}
+
+                {fetchStatus === "fail" && (
+                    <p className="ml-2 text-red-500 slow-font">
+                        Request Fail <br /> Check Console
+                    </p>
+                )}
             </div>
 
             <div className="flex gap-2">
-                <button className="flex-1 px-3 py-2 text-xs font-medium text-white transition-all border border-blue-500 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    Request WhiteList
+                <button 
+                    className="flex-1 px-3 py-2 text-xs font-medium text-white transition-all border border-blue-500 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    onClick={() => fetchRequestWhiteList(chainInfo.chain_id)}
+                    disabled={loading}
+                >
+                    {loading ? 'Processing...' : 'Request WhiteList'}
                 </button>
-                <button className="flex-1 px-3 py-2 text-xs font-medium text-white transition-all border border-gray-700 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    Refresh Balance
+                <button 
+                    className="flex-1 px-3 py-2 text-xs font-medium text-white transition-all border border-gray-700 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    onClick={() => fetchContractBalance(chainInfo.chain_id)}
+                    disabled={loading}
+                >
+                    {loading ? 'Processing...' : 'Refresh Balance'}
                 </button>
             </div>
         </div>

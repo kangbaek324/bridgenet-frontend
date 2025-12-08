@@ -9,11 +9,8 @@ export default function Contract() {
         try {
             const res = await axios.get("http://localhost:8081/api/bridge/chain")
             setChainInfo(res.data.data.list);
-            console.log(chainInfo);
-        } catch(err) {
-
-        } finally {
-
+        } catch(err) { 
+            console.error(err);
         }
     }
 

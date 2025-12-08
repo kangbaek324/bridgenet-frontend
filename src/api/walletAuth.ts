@@ -1,6 +1,18 @@
 import axios from "axios";
 
-export async function register(address: string): Promise<void> {
+async function getAddress() {
+    if (!window.ethereum) {
+        alert("We Support Only MetaMask Wallet");
+        return;
+    }
+
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    return accounts[0];
+}
+
+export async function register(): Promise<void> {
+    const address = await getAddress();
+
     try {
         // 논스 값 받기
         const nonceRes = await axios.post("http://127.0.0.1:8081/api/auth/nonce", {
@@ -18,7 +30,7 @@ export async function register(address: string): Promise<void> {
         await axios.post("http://127.0.0.1:8081/api/auth/register", {
             username: address,
             address: address,
-            signatureData: signature
+            signature_data: signature
         });
     } catch (err) {
         console.error("Wallet Auth Error", err);
@@ -27,7 +39,9 @@ export async function register(address: string): Promise<void> {
     }
 }
 
-export async function login(address: string) {
+export async function login() {
+    const address = await getAddress();
+
     try {
         const nonceRes = await axios.post("http://127.0.0.1:8081/api/auth/nonce", {
             address: address
@@ -43,12 +57,12 @@ export async function login(address: string) {
     
         const loginRes = await axios.post("http://127.0.0.1:8081/api/auth/login", {
             username: address,
-            signatureData: signature
+            signature_data: signature
         }, {
             withCredentials: true
         });
 
-        localStorage.setItem("accessToken", loginRes.data.data.accessToken);
+        localStorage.setItem("accessToken", loginRes.data.data.access_token);
 
     } catch (err) {
         console.error("Wallet Auth Error", err);

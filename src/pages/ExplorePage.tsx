@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Log from "../components/Log";
 import Ranking from "../components/Ranking";
 import Contract from "../components/contract";
+import My from "../components/My";
 
 export default function ExplorePage() {
   const navigate = useNavigate();
@@ -92,6 +93,7 @@ export default function ExplorePage() {
             {currentPage === 'log' && (<Log />)}
             {currentPage === 'ranking' && (<Ranking />)}
             {currentPage === 'contract' && (<Contract />)}
+            {currentPage === 'my' && (<My />)}
           </div>
           
           <a 

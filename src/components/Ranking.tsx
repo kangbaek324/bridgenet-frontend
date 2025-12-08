@@ -15,8 +15,6 @@ export default function Ranking() {
             
             const res = await axios.get(`http://localhost:8081/api/bridge/chain/ranking?${params}`);
             setData(res.data.data);
-            
-            console.log(res.data.data);
         } catch (error) {
             console.error("Failed to fetch ranking:", error);
         } finally {
