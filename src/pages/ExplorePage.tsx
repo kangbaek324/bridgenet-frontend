@@ -42,7 +42,7 @@ export default function ExplorePage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-linear-to-br from-gray-700 to-gray-900">
-      <header className={`flex gap-10 mb-4 w-5xl px-5 text-white slow-font transition-all duration-700 ${
+      <header className={`flex gap-10 mb-4 w-7xl px-5 text-white slow-font transition-all duration-700 ${
         showContent ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
       }`}>
         <p
@@ -81,7 +81,7 @@ export default function ExplorePage() {
         <div className={`transition-all duration-700 ease-out ${
           showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'
         }`}>
-          <div className={`h-[700px] w-5xl p-6 shadow-2xl rounded-2xl bg-linear-to-br from-gray-800 to-black
+          <div className={`h-[820px] w-7xl p-8 shadow-2xl rounded-2xl bg-linear-to-br from-gray-800 to-black
             transition-all duration-300 ease-in-out
             ${isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
           >

@@ -57,7 +57,7 @@ export default function LogDetailPage() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-linear-to-br from-gray-700 to-gray-900">
             {/* nav */}
-            <div className="flex gap-10 mb-4 w-5xl px-5 text-white slow-font">
+            <div className="flex gap-10 mb-4 w-7xl px-5 text-white slow-font">
                 <p
                     className="mr-auto transition-colors cursor-pointer text-slate-600 hover:text-white"
                     onClick={() => navigate("/explore")}
@@ -66,8 +66,8 @@ export default function LogDetailPage() {
                 </p>
             </div>
 
-            {/* 카드 — w-5xl h-[700px] 동일 */}
-            <div className="h-[700px] w-5xl p-6 shadow-2xl rounded-2xl bg-linear-to-br from-gray-800 to-black overflow-y-auto scrollbar-hide">
+            {/* 카드 — w-7xl h-[700px] 동일 */}
+            <div className="h-[820px] w-7xl p-8 shadow-2xl rounded-2xl bg-linear-to-br from-gray-800 to-black overflow-y-auto scrollbar-hide">
                 {detail ? (
                     <div className="flex flex-col gap-5">
 
