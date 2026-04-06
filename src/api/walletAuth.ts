@@ -30,7 +30,7 @@ export async function register(): Promise<void> {
         await axios.post("http://127.0.0.1:8081/api/auth/register", {
             username: address,
             address: address,
-            signature_data: signature
+            signatureData: signature
         });
     } catch (err) {
         console.error("Wallet Auth Error", err);
@@ -57,12 +57,12 @@ export async function login() {
     
         const loginRes = await axios.post("http://127.0.0.1:8081/api/auth/login", {
             username: address,
-            signature_data: signature
+            signatureData: signature
         }, {
             withCredentials: true
         });
 
-        localStorage.setItem("accessToken", loginRes.data.data.access_token);
+        localStorage.setItem("accessToken", loginRes.data.data.accessToken);
 
     } catch (err) {
         console.error("Wallet Auth Error", err);

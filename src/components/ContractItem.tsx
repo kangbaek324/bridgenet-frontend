@@ -11,105 +11,102 @@ export default function ContractItem({ chainInfo }) {
         try {
             setFetchStatus("");
             setHash("");
-            setLoading(true)
+            setLoading(true);
             if (!localStorage.getItem("accessToken")) {
                 alert("Please Login in My page");
                 return;
             }
-            
             const res = await axios.post(
-            `http://localhost:8081/api/bridge/chain/${chainId}/contract/whitelist`,
-            {},
-            {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-                }
-            }
+                `http://localhost:8081/api/chains/${chainId}/contract/whitelist`,
+                {},
+                { headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` } }
             );
-            
-            setHash(res.data.data.transaction_hash);
-            setFetchStatus("success")
-        } catch(err) {
+            setHash(res.data.data.transactionHash);
+            setFetchStatus("success");
+        } catch (err) {
             console.error(err);
             setFetchStatus("fail");
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const fetchContractBalance = async (chainId: string) => {
         try {
             setFetchStatus("");
             setHash("");
             setLoading(true);
-            await axios.get(`http://localhost:8081/api/bridge/chain/${chainId}/contract/balance`)
+            await axios.get(`http://localhost:8081/api/chains/${chainId}/contract/balance`);
             setFetchStatus("success");
-        } catch(err) {
+        } catch (err) {
             console.error(err);
             setFetchStatus("fail");
         } finally {
             setLoading(false);
         }
-    }
+    };
+
+    const btnBase = "flex-1 px-3 py-1.5 text-[11px] font-mono border transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
 
     return (
-        <div className="w-full p-4 border border-gray-700 rounded-lg bg-gray-800/50 backdrop-blur-sm">
-            <div className="flex items-center gap-3 mb-4">
-                <div className="p-1.5 border border-gray-600 rounded-lg bg-gray-900/50">
-                    <img 
-                        src={`/logo/${chainInfo.chain_id}-logo.png`} 
-                        alt="Ethereum" 
-                        className="w-8 h-8" 
-                    />
-                </div>
-                <div className="flex-1">
-                    <h3 className="text-base font-semibold text-white">{chainInfo.chain_name} Contract</h3>
-                </div>
+        <div className="border border-gray-700 bg-black/20 p-4">
+            {/* chain header */}
+            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-800">
+                <img
+                    src={`/logo/${chainInfo.chainId}-logo.png`}
+                    className="w-5 h-5"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                />
+                <span className="text-sm font-mono text-white">{chainInfo.chainName}</span>
+                <span className={`ml-auto text-[10px] font-mono px-1.5 py-0.5 border ${
+                    chainInfo.chainStatus === "ACTIVATE"
+                        ? "text-emerald-400 border-emerald-800"
+                        : "text-gray-500 border-gray-700"
+                }`}>
+                    {chainInfo.chainStatus}
+                </span>
             </div>
 
-            <div className="mb-4 space-y-3">
-                <div className="p-3 border rounded-lg bg-gray-900/50 border-gray-700/50">
-                    <p className="mb-1.5 text-xs font-medium text-gray-400 uppercase tracking-wide">Contract Address</p>
-                    <p className="font-mono text-xs text-white break-all">
-                        {chainInfo.smart_contract_address}
-                    </p>
-                </div>
-
-                <div className="p-3 border rounded-lg bg-gray-900/50 border-gray-700/50">
-                    <p className="mb-1.5 text-xs font-medium text-gray-400 uppercase tracking-wide">Contract Balance</p>
-                    <div className="flex items-baseline gap-2">
-                        <p className="text-xl font-bold text-white">{formatEther(chainInfo.smart_contract_value.toString())}</p>
-                        <p className="text-xs text-gray-400">{chainInfo.unit}</p>
-                    </div>
-                </div>
-
-                {fetchStatus === "success" && (
-                    <p className="ml-2 text-green-500 break-all slow-font">
-                        Request Success <br /> Tx Hash: {hash}
-                    </p>
-                )}
-
-                {fetchStatus === "fail" && (
-                    <p className="ml-2 text-red-500 slow-font">
-                        Request Fail <br /> Check Console
-                    </p>
-                )}
+            {/* contract address */}
+            <div className="mb-3">
+                <p className="text-[9px] font-mono text-gray-600 tracking-widest uppercase mb-1">Contract Address</p>
+                <p className="font-mono text-[11px] text-gray-400 break-all">{chainInfo.smartContractAddress}</p>
             </div>
 
+            {/* balance */}
+            <div className="mb-4">
+                <p className="text-[9px] font-mono text-gray-600 tracking-widest uppercase mb-1">Balance</p>
+                <p className="font-mono text-lg text-white">
+                    {formatEther(chainInfo.smartContractValue.toString())}
+                    <span className="text-gray-500 text-xs ml-1">{chainInfo.unit}</span>
+                </p>
+            </div>
+
+            {/* status */}
+            {fetchStatus === "success" && (
+                <p className="mb-3 text-[11px] font-mono text-emerald-400 break-all">
+                    ✓ {hash ? `tx: ${hash}` : "success"}
+                </p>
+            )}
+            {fetchStatus === "fail" && (
+                <p className="mb-3 text-[11px] font-mono text-red-400">✗ request failed</p>
+            )}
+
+            {/* buttons */}
             <div className="flex gap-2">
-                <button 
-                    className="flex-1 px-3 py-2 text-xs font-medium text-white transition-all border border-blue-500 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-                    onClick={() => fetchRequestWhiteList(chainInfo.chain_id)}
+                <button
+                    className={`${btnBase} text-blue-400 border-blue-800 hover:bg-blue-900/20`}
+                    onClick={() => fetchRequestWhiteList(chainInfo.chainId)}
                     disabled={loading}
                 >
-                    {loading ? 'Processing...' : 'Request WhiteList'}
+                    {loading ? "..." : "Whitelist"}
                 </button>
-                <button 
-                    className="flex-1 px-3 py-2 text-xs font-medium text-white transition-all border border-gray-700 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-                    onClick={() => fetchContractBalance(chainInfo.chain_id)}
+                <button
+                    className={`${btnBase} text-gray-400 border-gray-700 hover:border-gray-500 hover:bg-white/5`}
+                    onClick={() => fetchContractBalance(chainInfo.chainId)}
                     disabled={loading}
                 >
-                    {loading ? 'Processing...' : 'Refresh Balance'}
+                    {loading ? "..." : "Refresh"}
                 </button>
             </div>
         </div>

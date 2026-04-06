@@ -7,12 +7,12 @@ export default function Contract() {
 
     const fetchContractInfo = async () => {
         try {
-            const res = await axios.get("http://localhost:8081/api/bridge/chain")
+            const res = await axios.get("http://localhost:8081/api/chains");
             setChainInfo(res.data.data.list);
-        } catch(err) { 
+        } catch (err) {
             console.error(err);
         }
-    }
+    };
 
     useEffect(() => {
         fetchContractInfo();
@@ -21,19 +21,13 @@ export default function Contract() {
     return (
         <div className="flex flex-col h-full">
             <header className="mb-5">
-                <div className="flex gap-3 mb-3">
-                    <h1 className="mb-3 text-3xl text-white slow-font">Contract</h1>
-                </div>
-                <div className="text-white slow-font">
-                    <p>Can use Contract On Bridge</p>
-                </div>
+                <p className="text-[10px] font-mono text-gray-600 tracking-widest uppercase mb-0.5">EXPLORE /</p>
+                <h1 className="text-2xl text-white slow-font">Contract</h1>
+                <p className="mt-1 text-[11px] font-mono text-gray-600">Smart contracts used in bridge</p>
             </header>
-            <main className="grid grid-cols-2 gap-4 h-[574px] content-start overflow-y-auto scrollbar-hide">
+            <main className="grid grid-cols-2 gap-3 content-start overflow-y-auto scrollbar-hide" style={{ maxHeight: 560 }}>
                 {chainInfo.map((chain, index) => (
-                    <ContractItem
-                        key={index}
-                        chainInfo={chain}
-                    />
+                    <ContractItem key={index} chainInfo={chain} />
                 ))}
             </main>
         </div>

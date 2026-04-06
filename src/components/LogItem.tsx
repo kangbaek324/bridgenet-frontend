@@ -1,101 +1,89 @@
 import { formatEther } from "ethers";
 
-export default function LogItem({ data }: { data: any[] }) {
-    const truncateHash = (hash: string) => {
-        if (hash == null) return;
-        if (hash.length <= 20) return hash;
-        return `${hash.slice(0, 10)}...${hash.slice(-8)}`;
-    };
+interface LogItemProps {
+    data: any[];
+    onRowClick: (id: number) => void;
+}
 
+const approveColor: Record<string, string> = {
+    APPROVE: "text-emerald-400",
+    REJECT: "text-red-400",
+    PENDING: "text-yellow-400",
+};
+const bridgeColor: Record<string, string> = {
+    COMPLETED: "text-emerald-400",
+    FAILED: "text-red-400",
+    IN_PROGRESS: "text-blue-400",
+    PENDING: "text-yellow-400",
+};
+
+export default function LogItem({ data, onRowClick }: LogItemProps) {
     return (
-        <div className="overflow-x-auto h-[510px] ">
-            <table className="w-full">
+        <div className="overflow-x-auto h-[510px]">
+            <table className="w-full text-left">
                 <thead>
-                    <tr className="border-b border-gray-700/50">
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">From Chain</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">Transaction Hash</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">From Value</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">To Chain</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">Transaction Hash</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">To Value</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">Status</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">Exchanged At</th>
+                    <tr className="border-b border-gray-600">
+                        <th className="px-3 py-2 text-[10px] font-mono font-semibold tracking-widest text-gray-500 uppercase">From</th>
+                        <th className="px-3 py-2 text-[10px] font-mono font-semibold tracking-widest text-gray-500 uppercase">Amount</th>
+                        <th className="px-3 py-2 text-[10px] font-mono font-semibold tracking-widest text-gray-500 uppercase">To</th>
+                        <th className="px-3 py-2 text-[10px] font-mono font-semibold tracking-widest text-gray-500 uppercase">Amount</th>
+                        <th className="px-3 py-2 text-[10px] font-mono font-semibold tracking-widest text-gray-500 uppercase">Approve</th>
+                        <th className="px-3 py-2 text-[10px] font-mono font-semibold tracking-widest text-gray-500 uppercase">Bridge</th>
+                        <th className="px-3 py-2 text-[10px] font-mono font-semibold tracking-widest text-gray-500 uppercase">Time</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-800">
                     {data.map((item, index) => (
-                        <tr 
+                        <tr
                             key={index}
-                            className="transition-colors border-gray-700/30 hover:bg-gray-700/30"
+                            className="hover:bg-white/5 cursor-pointer transition-colors"
+                            onClick={() => onRowClick(item.id)}
                         >
                             <td className="px-3 py-3">
                                 <div className="flex items-center gap-1.5">
-                                    <img 
-                                        src={`/logo/${item.from_chain_id}-logo.png`}
-                                        alt={item.from_chain_name}
-                                        className="w-4 h-4 rounded-full"
-                                        onError={(e) => {
-                                            e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"%3E%3Ccircle cx="8" cy="8" r="8" fill="%234299e1"/%3E%3C/svg%3E';
-                                        }}
+                                    <img
+                                        src={`/logo/${item.from.chainId}-logo.png`}
+                                        className="w-3.5 h-3.5"
+                                        onError={(e) => { e.currentTarget.style.display = "none"; }}
                                     />
-                                    <span className="text-xs font-medium text-blue-300">
-                                        {item.from_chain_name}
-                                    </span>
+                                    <span className="text-xs text-blue-300 font-mono">{item.from.chainName}</span>
                                 </div>
                             </td>
                             <td className="px-3 py-3">
-                                <span 
-                                    className="text-[10px] font-mono text-gray-400 cursor-help"
-                                    title={item.from_transaction_hash}
-                                >
-                                    {truncateHash(item.from_transaction_hash)}
-                                </span>
-                            </td>
-                            <td className="px-3 py-3">
-                                <span className="text-xs font-semibold text-emerald-400">
-                                    {formatEther(item.from_value.toString())} {item.from_unit}
+                                <span className="text-xs font-mono text-emerald-400">
+                                    {formatEther(item.from.value.toString())} <span className="text-gray-500">{item.from.unit}</span>
                                 </span>
                             </td>
                             <td className="px-3 py-3">
                                 <div className="flex items-center gap-1.5">
-                                    <img 
-                                        src={`/logo/${item.to_chain_id}-logo.png`}
-                                        alt={item.to_chain_name}
-                                        className="w-4 h-4 rounded-full"
-                                        onError={(e) => {
-                                            e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"%3E%3Ccircle cx="8" cy="8" r="8" fill="%239f7aea"/%3E%3C/svg%3E';
-                                        }}
+                                    <img
+                                        src={`/logo/${item.to.chainId}-logo.png`}
+                                        className="w-3.5 h-3.5"
+                                        onError={(e) => { e.currentTarget.style.display = "none"; }}
                                     />
-                                    <span className="text-xs font-medium text-purple-300">
-                                        {item.to_chain_name}
-                                    </span>
+                                    <span className="text-xs text-purple-300 font-mono">{item.to.chainName}</span>
                                 </div>
                             </td>
                             <td className="px-3 py-3">
-                                <span 
-                                    className="text-[10px] font-mono text-gray-400 cursor-help"
-                                    title={item.to_transaction_hash}
-                                >
-                                    {truncateHash(item.to_transaction_hash)}
+                                <span className="text-xs font-mono text-emerald-400">
+                                    {formatEther(item.to.value.toString())} <span className="text-gray-500">{item.to.unit}</span>
                                 </span>
                             </td>
-                            <td className="px-3 py-2">
-                                <span className="text-xs font-semibold text-emerald-400">
-                                    {formatEther(item.to_value.toString())} {item.to_unit}
+                            <td className="px-3 py-3">
+                                <span className={`text-[10px] font-mono font-medium ${approveColor[item.approveStatus] ?? "text-gray-400"}`}>
+                                    {item.approveStatus}
                                 </span>
                             </td>
-                            <td className="px-3 py-2">
-                                <span className="text-[10px] text-gray-400">
-                                    {item.status}
+                            <td className="px-3 py-3">
+                                <span className={`text-[10px] font-mono font-medium ${bridgeColor[item.bridgeStatus] ?? "text-gray-400"}`}>
+                                    {item.bridgeStatus}
                                 </span>
                             </td>
-                            <td className="px-3 py-2">
-                                <span className="text-[10px] text-gray-400">
-                                    {new Date(item.exchanged_at).toLocaleString('en-US', {
-                                        month: 'short',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
+                            <td className="px-3 py-3">
+                                <span className="text-[10px] font-mono text-gray-500">
+                                    {new Date(item.createdAt).toLocaleString("en-US", {
+                                        month: "short", day: "numeric",
+                                        hour: "2-digit", minute: "2-digit",
                                     })}
                                 </span>
                             </td>

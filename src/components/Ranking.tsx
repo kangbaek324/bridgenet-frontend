@@ -3,7 +3,7 @@ import RankingItem from "./RankingItem";
 import axios from "axios";
 
 export default function Ranking() {
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<any[]>([]);
     const [sort, setSort] = useState('in');
     const [loading, setLoading] = useState(false);
 
@@ -12,8 +12,7 @@ export default function Ranking() {
         try {
             const params = new URLSearchParams();
             params.append("sort", sort);
-            
-            const res = await axios.get(`http://localhost:8081/api/bridge/chain/ranking?${params}`);
+            const res = await axios.get(`http://localhost:8081/api/chains/ranking?${params}`);
             setData(res.data.data);
         } catch (error) {
             console.error("Failed to fetch ranking:", error);
@@ -24,7 +23,7 @@ export default function Ranking() {
 
     useEffect(() => {
         fetchRanking();
-    }, [sort])
+    }, [sort]);
 
     return (
         <div className="flex flex-col h-full">
@@ -48,41 +47,34 @@ export default function Ranking() {
             </header>
             <main className="flex flex-col gap-2 h-[574px]">
                 <div className="overflow-hidden border border-gray-700 rounded-lg h-[500px]">
-                    <table className="">
+                    <table className="w-full">
                         <thead>
-                            <tr className="text-xs font-semibold text-left text-gray-400 slow-font">
-                                <th className="py-3 px-15">Ranking</th>
-                                <th className="py-3 px-15">Chain</th>
-                                <th className="py-3 px-30">Value</th>
-                                <th className="py-3 px-15">Unit</th>
-                                <th className="px-20 py-3">Exchange Rate</th>
+                            <tr className="text-xs font-semibold text-left text-gray-400 slow-font border-b border-gray-700">
+                                <th className="py-3 px-6">Ranking</th>
+                                <th className="py-3 px-6">Chain</th>
+                                <th className="py-3 px-6">Value</th>
+                                <th className="py-3 px-6">Unit</th>
                             </tr>
                         </thead>
-                            <tbody className="text-center text-white">
-                                {data.length === 0 && loading ? (
-                                    <tr>
-                                        <td colSpan={6} className="py-4">Loading...</td>
-                                    </tr>
-                                ) : (
-                                    data.map((item, index) => (
-                                        <RankingItem 
-                                            key={index}
-                                            ranking={index + 1} 
-                                            imageUrl={`/logo/${item.chain_id}-logo.png`} 
-                                            value={item.value}
-                                            unit={item.unit}
-                                            chainName={item.chain_name}
-                                            exchangeRate={""}
-                                        />
-                                    ))
-                                )}
-                            </tbody>
+                        <tbody className="text-center text-white">
+                            {data.length === 0 && loading ? (
+                                <tr>
+                                    <td colSpan={4} className="py-4">Loading...</td>
+                                </tr>
+                            ) : (
+                                data.map((item, index) => (
+                                    <RankingItem
+                                        key={index}
+                                        ranking={index + 1}
+                                        imageUrl={`/logo/${item.chainId}-logo.png`}
+                                        value={item.value}
+                                        unit={item.unit}
+                                        chainName={item.chainName}
+                                    />
+                                ))
+                            )}
+                        </tbody>
                     </table>
-                </div>
-                <div className="flex justify-center gap-3 mt-3 text-white">                  
-                    <button className="w-[71px] p-1 px-2 text-sm text-white transition-colors border border-gray-700 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500">Previous</button>
-                    <button className="w-[35.5px] p-1 px-2 text-sm text-white transition-colors border border-gray-700 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500">1</button>
-                    <button className="w-[71px] p-1 px-2 text-sm text-white transition-colors border border-gray-700 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500">Next</button>
                 </div>
             </main>
         </div>

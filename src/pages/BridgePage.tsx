@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Donation from "../components/donation";
+import Donation from "../components/Donation";
 import Bridge from "../components/Bridge";
-import Introduce from "../components/introduce";
+import Introduce from "../components/Introduce";
 
 export default function BridgePage() {
   const navigate = useNavigate();
