@@ -5,11 +5,13 @@ import axios from "axios";
 export default function Contract() {
     const [chainInfo, setChainInfo] = useState<any[]>([]);
 
-    useEffect(() => {
+    const fetchChains = () => {
         axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/chains`)
             .then(res => setChainInfo(res.data.data.list))
             .catch(() => setChainInfo([]));
-    }, []);
+    };
+
+    useEffect(() => { fetchChains(); }, []);
 
     return (
         <div className="flex flex-col gap-4">
@@ -22,7 +24,7 @@ export default function Contract() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {chainInfo.map((chain, i) => (
-                    <ContractItem key={i} chainInfo={chain} />
+                    <ContractItem key={i} chainInfo={chain} onRefresh={fetchChains} />
                 ))}
             </div>
         </div>

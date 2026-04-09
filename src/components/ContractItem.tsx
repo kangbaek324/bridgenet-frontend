@@ -18,7 +18,7 @@ function InfoRow({ label, children }: { label: string; children: React.ReactNode
     );
 }
 
-export default function ContractItem({ chainInfo }: { chainInfo: any }) {
+export default function ContractItem({ chainInfo, onRefresh }: { chainInfo: any; onRefresh?: () => void }) {
     const [loading, setLoading]           = useState(false);
     const [result, setResult]             = useState<{ ok: boolean; msg: string } | null>(null);
     const [isWhitelisted, setIsWhitelisted] = useState<boolean | null>(null);
@@ -49,6 +49,7 @@ export default function ContractItem({ chainInfo }: { chainInfo: any }) {
         setResult(null); setLoading(true);
         try {
             await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/chains/${chainInfo.chainId}/contract/balance`);
+            onRefresh?.();
             setResult({ ok: true, msg: "Balance refreshed." });
         } catch { setResult({ ok: false, msg: "Request failed." }); }
         finally { setLoading(false); }
