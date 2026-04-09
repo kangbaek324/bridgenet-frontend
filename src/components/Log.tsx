@@ -24,7 +24,7 @@ export default function Log() {
             if (direction !== "all") params.append("direction", direction);
             params.append("page", page.toString());
             params.append("size", "10");
-            const res    = await fetch(`http://localhost:8081/api/bridge/requests?${params}`);
+            const res    = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/bridge/requests?${params}`);
             const result = await res.json();
             setData(result.data.content);
             setRawData(result.data);

@@ -6,15 +6,15 @@ const NETWORK_PARAMS: Record<string, any> = {
     chainId: "0xaa36a7",
     chainName: "Sepolia",
     nativeCurrency: { name: "Sepolia ETH", symbol: "ETH", decimals: 18 },
-    rpcUrls: ["https://rpc.sepolia.org"],
-    blockExplorerUrls: ["https://sepolia.etherscan.io"],
+    rpcUrls: [import.meta.env.VITE_SEPOLIA_RPC_URL],
+    blockExplorerUrls: [import.meta.env.VITE_SEPOLIA_EXPLORER_URL],
   },
   "80002": {
     chainId: "0x13882",
     chainName: "Polygon Amoy",
     nativeCurrency: { name: "MATIC", symbol: "MATIC", decimals: 18 },
-    rpcUrls: ["https://rpc-amoy.polygon.technology"],
-    blockExplorerUrls: ["https://amoy.polygonscan.com"],
+    rpcUrls: [import.meta.env.VITE_AMOY_RPC_URL],
+    blockExplorerUrls: [import.meta.env.VITE_AMOY_EXPLORER_URL],
   },
 };
 

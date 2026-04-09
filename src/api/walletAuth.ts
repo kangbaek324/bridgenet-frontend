@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 async function getAddress() {
     if (!window.ethereum) {
         alert("We Support Only MetaMask Wallet");
@@ -14,20 +16,19 @@ export async function register(): Promise<void> {
     const address = await getAddress();
 
     try {
-        // 논스 값 받기
-        const nonceRes = await axios.post("http://127.0.0.1:8081/api/auth/nonce", {
+        const nonceRes = await axios.post(`${API_BASE}/api/auth/nonce`, {
             address: address
         });
 
         let nonce = nonceRes.data.data.nonce;
         const message = "Welcome to Bridgenet !\n\nRegister With " + nonce;
-        
+
         const signature = await window.ethereum.request({
             method: 'personal_sign',
             params: [message, address],
         });
 
-        await axios.post("http://127.0.0.1:8081/api/auth/register", {
+        await axios.post(`${API_BASE}/api/auth/register`, {
             username: address,
             address: address,
             signatureData: signature
@@ -43,19 +44,19 @@ export async function login() {
     const address = await getAddress();
 
     try {
-        const nonceRes = await axios.post("http://127.0.0.1:8081/api/auth/nonce", {
+        const nonceRes = await axios.post(`${API_BASE}/api/auth/nonce`, {
             address: address
         });
-    
+
         let nonce = nonceRes.data.data.nonce;
         const message = "Welcome to Bridgenet !\n\nLogin With " + nonce;
-        
+
         const signature = await window.ethereum.request({
             method: 'personal_sign',
             params: [message, address],
         });
-    
-        const loginRes = await axios.post("http://127.0.0.1:8081/api/auth/login", {
+
+        const loginRes = await axios.post(`${API_BASE}/api/auth/login`, {
             username: address,
             signatureData: signature
         }, {

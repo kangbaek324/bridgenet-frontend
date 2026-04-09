@@ -2,49 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { formatEther } from "ethers";
 
-const MOCK_DETAIL: Record<string, any> = {
-  "1": {
-    id: 1,
-    from: {
-      chain: {
-        chainId: 11155111,
-        chainName: "Sepolia",
-        value: "100000000000000000",
-        unit: "ETH",
-      },
-      tx: [
-        {
-          hash: "0x4f3a1b2c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a",
-          processedBlock: "5823041",
-          status: "CONFIRMED",
-        },
-      ],
-    },
-    to: {
-      chain: {
-        chainId: 80002,
-        chainName: "Amoy",
-        value: "98000000000000000",
-        unit: "MATIC",
-      },
-      tx: [
-        {
-          hash: "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
-          processedBlock: "9041823",
-          status: "CONFIRMED",
-        },
-        {
-          hash: "0x9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d",
-          processedBlock: "9041890",
-          status: "CONFIRMED",
-        },
-      ],
-    },
-    approveStatus: "APPROVE",
-    bridgeStatus: "COMPLETED",
-    createdAt: "2025-04-06T10:30:00",
-  },
-};
 
 const approveStyle: Record<string, { dot: string; text: string }> = {
   APPROVE: { dot: "bg-emerald-400", text: "text-emerald-400" },
@@ -104,10 +61,10 @@ export default function LogDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:8081/api/bridge/requests/${id}`)
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/bridge/requests/${id}`)
       .then((r) => r.json())
       .then((r) => setDetail(r.data))
-      .catch(() => setDetail(MOCK_DETAIL[id!] ?? MOCK_DETAIL["1"]))
+      .catch(() => setDetail(null))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -351,8 +308,8 @@ function Section({
 }
 
 const EXPLORER_BASE: Record<number, string> = {
-  11155111: "https://sepolia.etherscan.io/tx/",
-  80002: "https://amoy.polygonscan.com/tx/",
+  11155111: `${import.meta.env.VITE_SEPOLIA_EXPLORER_URL}/tx/`,
+  80002: `${import.meta.env.VITE_AMOY_EXPLORER_URL}/tx/`,
 };
 
 function TxList({ txs, chainId }: { txs: any[]; chainId?: number }) {

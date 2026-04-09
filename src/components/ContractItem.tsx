@@ -24,7 +24,7 @@ export default function ContractItem({ chainInfo }: { chainInfo: any }) {
     const [isWhitelisted, setIsWhitelisted] = useState<boolean | null>(null);
 
     useEffect(() => {
-        axios.get(`http://localhost:8081/api/chains/${chainInfo.chainId}/contract/whitelist`, {
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/chains/${chainInfo.chainId}/contract/whitelist`, {
             headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
         })
             .then(res => setIsWhitelisted(res.data.data.whiteList ?? false))
@@ -36,7 +36,7 @@ export default function ContractItem({ chainInfo }: { chainInfo: any }) {
         if (!localStorage.getItem("accessToken")) { alert("Please login first."); setLoading(false); return; }
         try {
             const res = await axios.post(
-                `http://localhost:8081/api/chains/${chainInfo.chainId}/contract/whitelist`, {},
+                `${import.meta.env.VITE_API_BASE_URL}/api/chains/${chainInfo.chainId}/contract/whitelist`, {},
                 { headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` } }
             );
             setIsWhitelisted(true);
@@ -48,7 +48,7 @@ export default function ContractItem({ chainInfo }: { chainInfo: any }) {
     const doRefresh = async () => {
         setResult(null); setLoading(true);
         try {
-            await axios.get(`http://localhost:8081/api/chains/${chainInfo.chainId}/contract/balance`);
+            await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/chains/${chainInfo.chainId}/contract/balance`);
             setResult({ ok: true, msg: "Balance refreshed." });
         } catch { setResult({ ok: false, msg: "Request failed." }); }
         finally { setLoading(false); }

@@ -10,7 +10,7 @@ export default function Ranking() {
     const fetchRanking = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`http://localhost:8081/api/chains/ranking?sort=${sort}`);
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/chains/ranking?sort=${sort}`);
             setData(res.data.data);
         } catch (e) {
             console.error(e);

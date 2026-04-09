@@ -38,7 +38,7 @@ export default function Bridge() {
   const fetchChains = async () => {
     setChainsLoading(true);
     try {
-      const res = await axios.get("http://localhost:8081/api/chains");
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/chains`);
       const chainList: ChainInfo[] = res.data.data.list;
       setChains(chainList);
       if (chainList.length >= 1) setFromChainId(chainList[0].chainId.toString());
