@@ -71,6 +71,10 @@ export default function Bridge() {
       showToast("error", "Please select a destination chain.");
       return;
     }
+    if (fromChainId === toChainId) {
+      showToast("error", "Source and destination chains must be different.");
+      return;
+    }
     if (!value || isNaN(Number(value)) || Number(value) <= 0) {
       showToast("error", "Please enter a valid amount.");
       return;
