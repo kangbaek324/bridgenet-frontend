@@ -6,13 +6,21 @@ const medal: Record<number, { icon: string; color: string }> = {
   3: { icon: "", color: "text-amber-600" },
 };
 
+interface RankingItemProps {
+  ranking: number;
+  chainName: string;
+  imageUrl: string;
+  value: string;
+  unit: string;
+}
+
 export default function RankingItem({
   ranking,
   chainName,
   imageUrl,
   value,
   unit,
-}) {
+}: RankingItemProps) {
   const m = medal[ranking];
   return (
     <tr className="transition-colors hover:bg-white/4">

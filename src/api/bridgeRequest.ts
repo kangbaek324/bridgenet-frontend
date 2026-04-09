@@ -20,14 +20,14 @@ const NETWORK_PARAMS: Record<string, any> = {
 
 async function switchNetwork(chainId: string) {
   try {
-    await window.ethereum.request({
+    await window.ethereum!.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: NETWORK_PARAMS[chainId].chainId }],
     });
   } catch (error: any) {
     if (error.code === 4902) {
       try {
-        await window.ethereum.request({
+        await window.ethereum!.request({
           method: "wallet_addEthereumChain",
           params: [NETWORK_PARAMS[chainId]],
         });
@@ -85,7 +85,7 @@ export async function bridgeRequest(
 ) {
   await switchNetwork(fromChainId);
 
-  const provider = new BrowserProvider(window.ethereum);
+  const provider = new BrowserProvider(window.ethereum!);
   const signer = await provider.getSigner();
   const contract = Bridge__factory.connect(contractAddress, signer);
   const sendValue = parseEther(value);
