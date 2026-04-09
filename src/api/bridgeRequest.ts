@@ -1,112 +1,121 @@
-import { BrowserProvider } from "ethers";
+import { BrowserProvider, parseEther, formatEther } from "ethers";
 import { Bridge__factory } from "../typechain-types";
-import { parseEther } from "ethers";
 
-const CONTRACT_ADDRESS: Record<string, string> = {
-  "11155111": "0x04Ff4586a5Fa21BC950Eb441B28Eb05E5Bd73E5b",
-  "80002": "0xF8862C3829FB4BF2E21CECc6423a55a4Cd325Cb9"
-};
-
-// 네트워크 정보 정의
 const NETWORK_PARAMS: Record<string, any> = {
   "11155111": {
-    chainId: "0xaa36a7", // 11155111을 16진수로
+    chainId: "0xaa36a7",
     chainName: "Sepolia",
-    nativeCurrency: {
-      name: "Sepolia ETH",
-      symbol: "ETH",
-      decimals: 18
-    },
-    rpcUrls: ["https://rpc.sepolia.org"],
-    blockExplorerUrls: ["https://sepolia.etherscan.io"]
+    nativeCurrency: { name: "Sepolia ETH", symbol: "ETH", decimals: 18 },
+    rpcUrls: [import.meta.env.VITE_SEPOLIA_RPC_URL],
+    blockExplorerUrls: [import.meta.env.VITE_SEPOLIA_EXPLORER_URL],
   },
   "80002": {
-    chainId: "0x13882", // 80002를 16진수로
+    chainId: "0x13882",
     chainName: "Polygon Amoy",
-    nativeCurrency: {
-      name: "MATIC",
-      symbol: "MATIC",
-      decimals: 18
-    },
-    rpcUrls: ["https://rpc-amoy.polygon.technology"],
-    blockExplorerUrls: ["https://amoy.polygonscan.com"]
-  }
+    nativeCurrency: { name: "MATIC", symbol: "MATIC", decimals: 18 },
+    rpcUrls: [import.meta.env.VITE_AMOY_RPC_URL],
+    blockExplorerUrls: [import.meta.env.VITE_AMOY_EXPLORER_URL],
+  },
 };
 
-// 네트워크 전환 함수
 async function switchNetwork(chainId: string) {
   try {
-    const hexChainId = NETWORK_PARAMS[chainId].chainId;
-    
-    // 네트워크 전환 시도
     await window.ethereum.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId: hexChainId }],
+      params: [{ chainId: NETWORK_PARAMS[chainId].chainId }],
     });
-    
-    console.log(`네트워크 전환 완료: ${chainId}`);
   } catch (error: any) {
-    // 네트워크가 MetaMask에 없는 경우 (error code 4902)1
     if (error.code === 4902) {
       try {
         await window.ethereum.request({
           method: "wallet_addEthereumChain",
           params: [NETWORK_PARAMS[chainId]],
         });
-        console.log(`네트워크 추가 완료: ${chainId}`);
-      } catch (addError) {
-        console.error("네트워크 추가 실패:", addError);
-        throw addError;
+      } catch {
+        throw new Error("Failed to add network. Please check MetaMask.");
       }
+    } else if (error.code === 4001) {
+      throw new Error("Network switch was rejected.");
     } else {
-      console.error("네트워크 전환 실패:", error);
-      throw error;
+      throw new Error("Failed to switch network.");
     }
   }
+}
+
+function parseContractError(error: any, contractInterface: any): string {
+  try {
+    const data = error?.data ?? error?.error?.data ?? error?.revert?.data;
+    if (data) {
+      const parsed = contractInterface.parseError(data);
+      if (parsed) {
+        switch (parsed.name) {
+          case "WhiteListUnauthorizedAccount":
+            return "Your wallet address is not whitelisted. Please request whitelist access first.";
+          case "BelowMinimumValue": {
+            const min = formatEther(parsed.args[0]);
+            const actual = formatEther(parsed.args[1]);
+            return `Amount is below the minimum limit. (Min: ${min}, Entered: ${actual})`;
+          }
+          case "ExceedsMaximumValue": {
+            const max = formatEther(parsed.args[0]);
+            const actual = formatEther(parsed.args[1]);
+            return `Amount exceeds the maximum limit. (Max: ${max}, Entered: ${actual})`;
+          }
+          case "InsufficientBalance": {
+            const requested = formatEther(parsed.args[0]);
+            const available = formatEther(parsed.args[1]);
+            return `Insufficient contract balance. (Requested: ${requested}, Available: ${available})`;
+          }
+          case "OwnableUnauthorizedAccount":
+            return "You do not have owner permissions.";
+          default:
+            return `Contract error: ${parsed.name}`;
+        }
+      }
+    }
+  } catch {}
+  return "";
 }
 
 export async function bridgeRequest(
   fromChainId: string,
   toChainId: string,
   value: string,
+  contractAddress: string,
 ) {
+  await switchNetwork(fromChainId);
+
+  const provider = new BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  const contract = Bridge__factory.connect(contractAddress, signer);
+  const sendValue = parseEther(value);
+
   try {
-    // 1. 먼저 올바른 네트워크로 전환
-    await switchNetwork(fromChainId);
-    
-    // 2. Provider와 Signer 가져오기
-    const provider = new BrowserProvider(window.ethereum);
-    const network = await provider.getNetwork();
-    console.log("현재 네트워크:", network);
-    
-    const signer = await provider.getSigner();
-
-    // 3. 컨트랙트 연결
-    const contract = Bridge__factory.connect(CONTRACT_ADDRESS[fromChainId], signer);
-
-    let sendValue = parseEther(value);
-
-    // 4. 트랜잭션 실행
-    const tx = await contract.request(toChainId, sendValue, {
-      value: sendValue
-    });
-    console.log("트랜잭션 전송됨:", tx.hash);
-    
+    const tx = await contract.request(toChainId, { value: sendValue });
+    console.log("Transaction sent:", tx.hash);
     const receipt = await tx.wait();
-    console.log("트랜잭션 완료:", receipt);
-    
+    console.log("Transaction confirmed:", receipt);
     return receipt;
   } catch (error: any) {
-    console.error("브릿지 요청 실패:", error);
-    
-    if (error.code === 4001) {
-      alert("사용자가 트랜잭션을 거부했습니다.");
-    } else if (error.code === -32002) {
-      alert("MetaMask에서 이미 요청 대기 중입니다.");
-    } else {
-      alert(`트랜잭션 실패: ${error.message}`);
+    console.error("Bridge request failed:", error);
+
+    if (error.code === 4001 || error?.info?.error?.code === 4001) {
+      throw new Error("Transaction was rejected.");
     }
-    
-    throw error;
+
+    if (error.code === -32002) {
+      throw new Error("MetaMask is already processing a request. Please check MetaMask.");
+    }
+
+    const contractMsg = parseContractError(error, contract.interface);
+    if (contractMsg) {
+      throw new Error(contractMsg);
+    }
+
+    if (error.code === "INSUFFICIENT_FUNDS" || error?.info?.error?.message?.includes("insufficient funds")) {
+      throw new Error("Insufficient wallet balance.");
+    }
+
+    throw new Error(error?.shortMessage ?? error?.message ?? "An unknown error occurred.");
   }
 }

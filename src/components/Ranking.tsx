@@ -3,90 +3,75 @@ import RankingItem from "./RankingItem";
 import axios from "axios";
 
 export default function Ranking() {
-    const [data, setData] = useState([]);
-    const [sort, setSort] = useState('in');
+    const [data, setData]       = useState<any[]>([]);
+    const [sort, setSort]       = useState("in");
     const [loading, setLoading] = useState(false);
 
     const fetchRanking = async () => {
         setLoading(true);
         try {
-            const params = new URLSearchParams();
-            params.append("sort", sort);
-            
-            const res = await axios.get(`http://localhost:8081/api/bridge/chain/ranking?${params}`);
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/chains/ranking?sort=${sort}`);
             setData(res.data.data);
-            
-            console.log(res.data.data);
-        } catch (error) {
-            console.error("Failed to fetch ranking:", error);
-        } finally {
-            setLoading(false);
+        } catch (e) {
+            console.error(e);
+            setData([]);
         }
+        finally { setLoading(false); }
     };
 
-    useEffect(() => {
-        fetchRanking();
-    }, [sort])
+    useEffect(() => { fetchRanking(); }, [sort]);
 
     return (
-        <div className="flex flex-col h-full">
-            <header className="mb-5">
-                <div className="flex gap-3 mb-3">
-                    <h1 className="mb-3 text-3xl text-white slow-font">Ranking</h1>
-                    <div className="flex items-center gap-5 ml-auto">
-                        <select
-                            value={sort}
-                            onChange={(e) => setSort(e.target.value)}
-                            className="h-10 p-2 text-sm text-white transition-colors border border-gray-700 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="in">in</option>
-                            <option value="out">out</option>
-                        </select>
-                    </div>
+        <div className="flex flex-col gap-4">
+            {/* 섹션 헤더 */}
+            <div className="flex items-start justify-between">
+                <div>
+                    <h2 className="text-lg text-white slow-font">Chain Ranking</h2>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                        Ranked by total bridging value · {sort === "in" ? "Inflow" : "Outflow"}
+                    </p>
                 </div>
-                <div className="text-white slow-font">
-                    <p>Total Bridging Value Ranking</p>
+                {/* 토글 */}
+                <div className="flex items-center bg-white/5 border border-white/10 rounded-lg p-1 gap-1">
+                    {(["in", "out"] as const).map((v) => (
+                        <button key={v} onClick={() => setSort(v)}
+                            className={`px-4 py-1.5 text-xs slow-font rounded-md transition-colors ${
+                                sort === v ? "bg-white/15 text-white" : "text-gray-500 hover:text-gray-300"
+                            }`}>
+                            {v === "in" ? "Inflow" : "Outflow"}
+                        </button>
+                    ))}
                 </div>
-            </header>
-            <main className="flex flex-col gap-2 h-[574px]">
-                <div className="overflow-hidden border border-gray-700 rounded-lg h-[500px]">
-                    <table className="">
-                        <thead>
-                            <tr className="text-xs font-semibold text-left text-gray-400 slow-font">
-                                <th className="py-3 px-15">Ranking</th>
-                                <th className="py-3 px-15">Chain</th>
-                                <th className="py-3 px-30">Value</th>
-                                <th className="py-3 px-15">Unit</th>
-                                <th className="px-20 py-3">Exchange Rate</th>
+            </div>
+
+            {/* 테이블 */}
+            <div className="rounded-xl border border-white/8 overflow-hidden">
+                <table className="w-full">
+                    <thead>
+                        <tr className="text-left border-b border-white/5 bg-white/2">
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font w-20">Rank</th>
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font">Chain</th>
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font text-right">Total Value</th>
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font w-24">Unit</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/4">
+                        {data.length === 0 && loading ? (
+                            <tr>
+                                <td colSpan={4} className="px-4 py-12 text-center text-sm text-gray-600 slow-font">
+                                    Loading...
+                                </td>
                             </tr>
-                        </thead>
-                            <tbody className="text-center text-white">
-                                {data.length === 0 && loading ? (
-                                    <tr>
-                                        <td colSpan={6} className="py-4">Loading...</td>
-                                    </tr>
-                                ) : (
-                                    data.map((item, index) => (
-                                        <RankingItem 
-                                            key={index}
-                                            ranking={index + 1} 
-                                            imageUrl={`/logo/${item.chain_id}-logo.png`} 
-                                            value={item.value}
-                                            unit={item.unit}
-                                            chainName={item.chain_name}
-                                            exchangeRate={""}
-                                        />
-                                    ))
-                                )}
-                            </tbody>
-                    </table>
-                </div>
-                <div className="flex justify-center gap-3 mt-3 text-white">                  
-                    <button className="w-[71px] p-1 px-2 text-sm text-white transition-colors border border-gray-700 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500">Previous</button>
-                    <button className="w-[35.5px] p-1 px-2 text-sm text-white transition-colors border border-gray-700 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500">1</button>
-                    <button className="w-[71px] p-1 px-2 text-sm text-white transition-colors border border-gray-700 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500">Next</button>
-                </div>
-            </main>
+                        ) : (
+                            data.map((item, i) => (
+                                <RankingItem key={i} ranking={i + 1}
+                                    imageUrl={`/logo/${item.chainId}-logo.png`}
+                                    value={item.value} unit={item.unit} chainName={item.chainName} />
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

@@ -1,108 +1,158 @@
 import { formatEther } from "ethers";
 
-export default function LogItem({ data }: { data: any[] }) {
-    const truncateHash = (hash: string) => {
-        if (hash == null) return;
-        if (hash.length <= 20) return hash;
-        return `${hash.slice(0, 10)}...${hash.slice(-8)}`;
-    };
+interface LogItemProps {
+    data: any[];
+    onRowClick: (id: number) => void;
+}
+
+const approveDot: Record<string, string> = {
+    APPROVE: "bg-emerald-400",
+    REJECT:  "bg-red-400",
+    PENDING: "bg-amber-400",
+};
+const bridgeDot: Record<string, string> = {
+    COMPLETED:   "bg-emerald-400",
+    FAILED:      "bg-red-400",
+    IN_PROGRESS: "bg-blue-400",
+    PENDING:     "bg-amber-400",
+};
+
+function StatusDot({ color, label }: { color: string; label: string }) {
+    return (
+        <span className="flex items-center gap-1.5">
+            <span className={`inline-block w-1.5 h-1.5 rounded-full shrink-0 ${color}`} />
+            <span className="text-xs text-gray-300 slow-font">{label}</span>
+        </span>
+    );
+}
+
+function ChainCell({ chainId, chainName }: { chainId: number; chainName: string }) {
+    return (
+        <div className="flex items-center gap-1.5">
+            <img src={`/logo/${chainId}-logo.png`} className="w-4 h-4 rounded-full"
+                 onError={(e) => { e.currentTarget.style.display = "none"; }} />
+            <span className="text-xs text-gray-300 slow-font">{chainName}</span>
+        </div>
+    );
+}
+
+export default function LogItem({ data, onRowClick }: LogItemProps) {
+    if (data.length === 0) {
+        return (
+            <div className="px-4 py-12 text-center text-sm text-gray-600 slow-font">
+                No transactions found
+            </div>
+        );
+    }
 
     return (
-        <div className="overflow-x-auto h-[510px] ">
-            <table className="w-full">
-                <thead>
-                    <tr className="border-b border-gray-700/50">
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">From Chain</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">Transaction Hash</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">From Value</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">To Chain</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">Transaction Hash</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">To Value</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">Status</th>
-                        <th className="px-3 py-1 text-xs font-semibold text-left text-gray-400">Exchanged At</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map((item, index) => (
-                        <tr 
-                            key={index}
-                            className="transition-colors border-gray-700/30 hover:bg-gray-700/30"
-                        >
-                            <td className="px-3 py-3">
-                                <div className="flex items-center gap-1.5">
-                                    <img 
-                                        src={`/logo/${item.from_chain_id}-logo.png`}
-                                        alt={item.from_chain_name}
-                                        className="w-4 h-4 rounded-full"
-                                        onError={(e) => {
-                                            e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"%3E%3Ccircle cx="8" cy="8" r="8" fill="%234299e1"/%3E%3C/svg%3E';
-                                        }}
-                                    />
-                                    <span className="text-xs font-medium text-blue-300">
-                                        {item.from_chain_name}
-                                    </span>
-                                </div>
-                            </td>
-                            <td className="px-3 py-3">
-                                <span 
-                                    className="text-[10px] font-mono text-gray-400 cursor-help"
-                                    title={item.from_transaction_hash}
-                                >
-                                    {truncateHash(item.from_transaction_hash)}
-                                </span>
-                            </td>
-                            <td className="px-3 py-3">
-                                <span className="text-xs font-semibold text-emerald-400">
-                                    {formatEther(item.from_value.toString())} {item.from_unit}
-                                </span>
-                            </td>
-                            <td className="px-3 py-3">
-                                <div className="flex items-center gap-1.5">
-                                    <img 
-                                        src={`/logo/${item.to_chain_id}-logo.png`}
-                                        alt={item.to_chain_name}
-                                        className="w-4 h-4 rounded-full"
-                                        onError={(e) => {
-                                            e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"%3E%3Ccircle cx="8" cy="8" r="8" fill="%239f7aea"/%3E%3C/svg%3E';
-                                        }}
-                                    />
-                                    <span className="text-xs font-medium text-purple-300">
-                                        {item.to_chain_name}
-                                    </span>
-                                </div>
-                            </td>
-                            <td className="px-3 py-3">
-                                <span 
-                                    className="text-[10px] font-mono text-gray-400 cursor-help"
-                                    title={item.to_transaction_hash}
-                                >
-                                    {truncateHash(item.to_transaction_hash)}
-                                </span>
-                            </td>
-                            <td className="px-3 py-2">
-                                <span className="text-xs font-semibold text-emerald-400">
-                                    {formatEther(item.to_value.toString())} {item.to_unit}
-                                </span>
-                            </td>
-                            <td className="px-3 py-2">
-                                <span className="text-[10px] text-gray-400">
-                                    {item.status}
-                                </span>
-                            </td>
-                            <td className="px-3 py-2">
-                                <span className="text-[10px] text-gray-400">
-                                    {new Date(item.exchanged_at).toLocaleString('en-US', {
-                                        month: 'short',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}
-                                </span>
-                            </td>
+        <>
+            {/* ── 데스크톱 테이블 ── */}
+            <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full">
+                    <thead>
+                        <tr className="text-left border-b border-white/5 bg-white/2">
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font w-20">Txn #</th>
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font">From</th>
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font">Send</th>
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font w-8 text-center">→</th>
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font">To</th>
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font">Receive</th>
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font">Approve</th>
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font">Bridge</th>
+                            <th className="px-4 py-3 text-xs font-medium text-gray-500 slow-font text-right">Age</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody className="divide-y divide-white/4">
+                        {data.map((item, i) => (
+                            <tr key={i} onClick={() => onRowClick(item.id)}
+                                className="hover:bg-white/4 cursor-pointer transition-colors group">
+                                <td className="px-4 py-3">
+                                    <span className="font-mono text-xs text-blue-400 group-hover:text-blue-300 transition-colors">#{item.id}</span>
+                                </td>
+                                <td className="px-4 py-3"><ChainCell chainId={item.from.chainId} chainName={item.from.chainName} /></td>
+                                <td className="px-4 py-3">
+                                    <span className="font-mono text-xs text-white">
+                                        {formatEther(item.from.value.toString())}
+                                        <span className="text-gray-500 ml-1">{item.from.unit}</span>
+                                    </span>
+                                </td>
+                                <td className="px-2 py-3 text-center">
+                                    <span className="text-gray-600 text-xs">→</span>
+                                </td>
+                                <td className="px-4 py-3"><ChainCell chainId={item.to.chainId} chainName={item.to.chainName} /></td>
+                                <td className="px-4 py-3">
+                                    <span className="font-mono text-xs text-white">
+                                        {formatEther(item.to.value.toString())}
+                                        <span className="text-gray-500 ml-1">{item.to.unit}</span>
+                                    </span>
+                                </td>
+                                <td className="px-4 py-3">
+                                    <StatusDot color={approveDot[item.approveStatus] ?? "bg-gray-500"} label={item.approveStatus} />
+                                </td>
+                                <td className="px-4 py-3">
+                                    <StatusDot color={bridgeDot[item.bridgeStatus] ?? "bg-gray-500"} label={item.bridgeStatus} />
+                                </td>
+                                <td className="px-4 py-3 text-right">
+                                    <span className="text-xs text-gray-500 slow-font whitespace-nowrap">
+                                        {new Date(item.createdAt).toLocaleString("en-US", {
+                                            month: "short", day: "numeric",
+                                            hour: "2-digit", minute: "2-digit",
+                                        })}
+                                    </span>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* ── 모바일 카드 뷰 ── */}
+            <div className="sm:hidden divide-y divide-white/5">
+                {data.map((item, i) => (
+                    <div key={i} onClick={() => onRowClick(item.id)}
+                        className="px-4 py-3 hover:bg-white/4 cursor-pointer transition-colors">
+                        {/* 상단: txn # + 날짜 */}
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="font-mono text-xs text-blue-400">#{item.id}</span>
+                            <span className="text-xs text-gray-500 slow-font">
+                                {new Date(item.createdAt).toLocaleString("en-US", {
+                                    month: "short", day: "numeric",
+                                    hour: "2-digit", minute: "2-digit",
+                                })}
+                            </span>
+                        </div>
+                        {/* 중단: from → to */}
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="flex-1">
+                                <ChainCell chainId={item.from.chainId} chainName={item.from.chainName} />
+                                <span className="font-mono text-xs text-white mt-0.5 block">
+                                    {formatEther(item.from.value.toString())}
+                                    <span className="text-gray-500 ml-1">{item.from.unit}</span>
+                                </span>
+                            </div>
+                            <span className="text-gray-600 text-sm">→</span>
+                            <div className="flex-1 text-right">
+                                <div className="flex items-center justify-end gap-1.5">
+                                    <span className="text-xs text-gray-300 slow-font">{item.to.chainName}</span>
+                                    <img src={`/logo/${item.to.chainId}-logo.png`} className="w-4 h-4 rounded-full"
+                                         onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                                </div>
+                                <span className="font-mono text-xs text-white mt-0.5 block">
+                                    {formatEther(item.to.value.toString())}
+                                    <span className="text-gray-500 ml-1">{item.to.unit}</span>
+                                </span>
+                            </div>
+                        </div>
+                        {/* 하단: 상태 */}
+                        <div className="flex items-center gap-3">
+                            <StatusDot color={approveDot[item.approveStatus] ?? "bg-gray-500"} label={item.approveStatus} />
+                            <span className="text-gray-700 text-xs">·</span>
+                            <StatusDot color={bridgeDot[item.bridgeStatus] ?? "bg-gray-500"} label={item.bridgeStatus} />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </>
     );
 }

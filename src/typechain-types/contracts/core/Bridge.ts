@@ -32,8 +32,6 @@ export declare namespace Bridge {
     toChainId: BigNumberish;
     toValue: BigNumberish;
     status: BigNumberish;
-    statusDecidedBy: AddressLike;
-    exchangedAt: BigNumberish;
   };
 
   export type RequestInfoStructOutput = [
@@ -43,9 +41,7 @@ export declare namespace Bridge {
     fromValue: bigint,
     toChainId: bigint,
     toValue: bigint,
-    status: bigint,
-    statusDecidedBy: string,
-    exchangedAt: bigint
+    status: bigint
   ] & {
     id: bigint;
     requestBy: string;
@@ -54,23 +50,22 @@ export declare namespace Bridge {
     toChainId: bigint;
     toValue: bigint;
     status: bigint;
-    statusDecidedBy: string;
-    exchangedAt: bigint;
   };
 }
 
 export interface BridgeInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "addBalance"
-      | "addChain"
-      | "cancelRequest"
-      | "chainList"
       | "owner"
-      | "removeChain"
+      | "payoutList"
       | "renounceOwnership"
       | "request"
+      | "requestIdCount"
       | "requestList"
+      | "requestMaximumValue"
+      | "requestMinimumValue"
+      | "setMaximumValue"
+      | "setMinimumValue"
       | "setRequest"
       | "setWhiteList"
       | "transferOwnership"
@@ -80,35 +75,18 @@ export interface BridgeInterface extends Interface {
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "AddBalance"
-      | "ChainListUpdated"
       | "OwnershipTransferred"
       | "Requested"
       | "SetRequested"
       | "TriggerPayouted"
       | "WhitelistUpdated"
+      | "setValueRange"
   ): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "addBalance",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addChain",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "cancelRequest",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "chainList",
-    values: [BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "removeChain",
-    values: [BigNumberish]
+    functionFragment: "payoutList",
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -116,10 +94,30 @@ export interface BridgeInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "request",
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "requestIdCount",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "requestList",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "requestMaximumValue",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "requestMinimumValue",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMaximumValue",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMinimumValue",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -136,32 +134,42 @@ export interface BridgeInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "triggerPayout",
-    values: [AddressLike, BigNumberish]
+    values: [BigNumberish, BigNumberish, AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "whiteList",
     values: [AddressLike]
   ): string;
 
-  decodeFunctionResult(functionFragment: "addBalance", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "addChain", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "cancelRequest",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "chainList", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeChain",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "payoutList", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "request", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "requestIdCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "requestList",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requestMaximumValue",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requestMinimumValue",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMaximumValue",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMinimumValue",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setRequest", data: BytesLike): Result;
@@ -180,32 +188,6 @@ export interface BridgeInterface extends Interface {
   decodeFunctionResult(functionFragment: "whiteList", data: BytesLike): Result;
 }
 
-export namespace AddBalanceEvent {
-  export type InputTuple = [_address: AddressLike, value: BigNumberish];
-  export type OutputTuple = [_address: string, value: bigint];
-  export interface OutputObject {
-    _address: string;
-    value: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ChainListUpdatedEvent {
-  export type InputTuple = [chainId: BigNumberish, status: boolean];
-  export type OutputTuple = [chainId: bigint, status: boolean];
-  export interface OutputObject {
-    chainId: bigint;
-    status: boolean;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
 export namespace OwnershipTransferredEvent {
   export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
   export type OutputTuple = [previousOwner: string, newOwner: string];
@@ -221,15 +203,15 @@ export namespace OwnershipTransferredEvent {
 
 export namespace RequestedEvent {
   export type InputTuple = [
-    requestedBy: AddressLike,
+    requestAddress: AddressLike,
     request: Bridge.RequestInfoStruct
   ];
   export type OutputTuple = [
-    requestedBy: string,
+    requestAddress: string,
     request: Bridge.RequestInfoStructOutput
   ];
   export interface OutputObject {
-    requestedBy: string;
+    requestAddress: string;
     request: Bridge.RequestInfoStructOutput;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
@@ -241,18 +223,12 @@ export namespace RequestedEvent {
 export namespace SetRequestedEvent {
   export type InputTuple = [
     requestId: BigNumberish,
-    requestStatus: BigNumberish,
-    requestedBy: AddressLike
+    requestStatus: BigNumberish
   ];
-  export type OutputTuple = [
-    requestId: bigint,
-    requestStatus: bigint,
-    requestedBy: string
-  ];
+  export type OutputTuple = [requestId: bigint, requestStatus: bigint];
   export interface OutputObject {
     requestId: bigint;
     requestStatus: bigint;
-    requestedBy: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -279,6 +255,19 @@ export namespace WhitelistUpdatedEvent {
   export interface OutputObject {
     _address: string;
     status: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace setValueRangeEvent {
+  export type InputTuple = [valueRange: BigNumberish, value: BigNumberish];
+  export type OutputTuple = [valueRange: bigint, value: bigint];
+  export interface OutputObject {
+    valueRange: bigint;
+    value: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -329,52 +318,24 @@ export interface Bridge extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  addBalance: TypedContractMethod<[], [void], "payable">;
-
-  addChain: TypedContractMethod<[chainId: BigNumberish], [void], "nonpayable">;
-
-  cancelRequest: TypedContractMethod<
-    [requestId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
-  chainList: TypedContractMethod<
-    [arg0: BigNumberish],
-    [[bigint, boolean] & { id: bigint; active: boolean }],
-    "view"
-  >;
-
   owner: TypedContractMethod<[], [string], "view">;
 
-  removeChain: TypedContractMethod<
-    [chainId: BigNumberish],
-    [void],
-    "nonpayable"
+  payoutList: TypedContractMethod<
+    [arg0: BigNumberish, arg1: BigNumberish],
+    [boolean],
+    "view"
   >;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
-  request: TypedContractMethod<
-    [toChainId: BigNumberish, _value: BigNumberish],
-    [void],
-    "payable"
-  >;
+  request: TypedContractMethod<[toChainId: BigNumberish], [void], "payable">;
+
+  requestIdCount: TypedContractMethod<[], [bigint], "view">;
 
   requestList: TypedContractMethod<
     [arg0: BigNumberish],
     [
-      [
-        bigint,
-        string,
-        bigint,
-        bigint,
-        bigint,
-        bigint,
-        bigint,
-        string,
-        bigint
-      ] & {
+      [bigint, string, bigint, bigint, bigint, bigint, bigint] & {
         id: bigint;
         requestBy: string;
         fromChainId: bigint;
@@ -382,11 +343,25 @@ export interface Bridge extends BaseContract {
         toChainId: bigint;
         toValue: bigint;
         status: bigint;
-        statusDecidedBy: string;
-        exchangedAt: bigint;
       }
     ],
     "view"
+  >;
+
+  requestMaximumValue: TypedContractMethod<[], [bigint], "view">;
+
+  requestMinimumValue: TypedContractMethod<[], [bigint], "view">;
+
+  setMaximumValue: TypedContractMethod<
+    [max: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  setMinimumValue: TypedContractMethod<
+    [min: BigNumberish],
+    [void],
+    "nonpayable"
   >;
 
   setRequest: TypedContractMethod<
@@ -408,7 +383,12 @@ export interface Bridge extends BaseContract {
   >;
 
   triggerPayout: TypedContractMethod<
-    [_address: AddressLike, _value: BigNumberish],
+    [
+      fromChainId: BigNumberish,
+      requestId: BigNumberish,
+      _address: AddressLike,
+      _value: BigNumberish
+    ],
     [void],
     "nonpayable"
   >;
@@ -420,53 +400,30 @@ export interface Bridge extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "addBalance"
-  ): TypedContractMethod<[], [void], "payable">;
-  getFunction(
-    nameOrSignature: "addChain"
-  ): TypedContractMethod<[chainId: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "cancelRequest"
-  ): TypedContractMethod<[requestId: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "chainList"
-  ): TypedContractMethod<
-    [arg0: BigNumberish],
-    [[bigint, boolean] & { id: bigint; active: boolean }],
-    "view"
-  >;
-  getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "removeChain"
-  ): TypedContractMethod<[chainId: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: "payoutList"
+  ): TypedContractMethod<
+    [arg0: BigNumberish, arg1: BigNumberish],
+    [boolean],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "request"
-  ): TypedContractMethod<
-    [toChainId: BigNumberish, _value: BigNumberish],
-    [void],
-    "payable"
-  >;
+  ): TypedContractMethod<[toChainId: BigNumberish], [void], "payable">;
+  getFunction(
+    nameOrSignature: "requestIdCount"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "requestList"
   ): TypedContractMethod<
     [arg0: BigNumberish],
     [
-      [
-        bigint,
-        string,
-        bigint,
-        bigint,
-        bigint,
-        bigint,
-        bigint,
-        string,
-        bigint
-      ] & {
+      [bigint, string, bigint, bigint, bigint, bigint, bigint] & {
         id: bigint;
         requestBy: string;
         fromChainId: bigint;
@@ -474,12 +431,22 @@ export interface Bridge extends BaseContract {
         toChainId: bigint;
         toValue: bigint;
         status: bigint;
-        statusDecidedBy: string;
-        exchangedAt: bigint;
       }
     ],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "requestMaximumValue"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "requestMinimumValue"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "setMaximumValue"
+  ): TypedContractMethod<[max: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setMinimumValue"
+  ): TypedContractMethod<[min: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setRequest"
   ): TypedContractMethod<
@@ -500,7 +467,12 @@ export interface Bridge extends BaseContract {
   getFunction(
     nameOrSignature: "triggerPayout"
   ): TypedContractMethod<
-    [_address: AddressLike, _value: BigNumberish],
+    [
+      fromChainId: BigNumberish,
+      requestId: BigNumberish,
+      _address: AddressLike,
+      _value: BigNumberish
+    ],
     [void],
     "nonpayable"
   >;
@@ -508,20 +480,6 @@ export interface Bridge extends BaseContract {
     nameOrSignature: "whiteList"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
 
-  getEvent(
-    key: "AddBalance"
-  ): TypedContractEvent<
-    AddBalanceEvent.InputTuple,
-    AddBalanceEvent.OutputTuple,
-    AddBalanceEvent.OutputObject
-  >;
-  getEvent(
-    key: "ChainListUpdated"
-  ): TypedContractEvent<
-    ChainListUpdatedEvent.InputTuple,
-    ChainListUpdatedEvent.OutputTuple,
-    ChainListUpdatedEvent.OutputObject
-  >;
   getEvent(
     key: "OwnershipTransferred"
   ): TypedContractEvent<
@@ -557,30 +515,15 @@ export interface Bridge extends BaseContract {
     WhitelistUpdatedEvent.OutputTuple,
     WhitelistUpdatedEvent.OutputObject
   >;
+  getEvent(
+    key: "setValueRange"
+  ): TypedContractEvent<
+    setValueRangeEvent.InputTuple,
+    setValueRangeEvent.OutputTuple,
+    setValueRangeEvent.OutputObject
+  >;
 
   filters: {
-    "AddBalance(address,uint256)": TypedContractEvent<
-      AddBalanceEvent.InputTuple,
-      AddBalanceEvent.OutputTuple,
-      AddBalanceEvent.OutputObject
-    >;
-    AddBalance: TypedContractEvent<
-      AddBalanceEvent.InputTuple,
-      AddBalanceEvent.OutputTuple,
-      AddBalanceEvent.OutputObject
-    >;
-
-    "ChainListUpdated(uint256,bool)": TypedContractEvent<
-      ChainListUpdatedEvent.InputTuple,
-      ChainListUpdatedEvent.OutputTuple,
-      ChainListUpdatedEvent.OutputObject
-    >;
-    ChainListUpdated: TypedContractEvent<
-      ChainListUpdatedEvent.InputTuple,
-      ChainListUpdatedEvent.OutputTuple,
-      ChainListUpdatedEvent.OutputObject
-    >;
-
     "OwnershipTransferred(address,address)": TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
@@ -603,7 +546,7 @@ export interface Bridge extends BaseContract {
       RequestedEvent.OutputObject
     >;
 
-    "SetRequested(uint256,uint8,address)": TypedContractEvent<
+    "SetRequested(uint256,uint8)": TypedContractEvent<
       SetRequestedEvent.InputTuple,
       SetRequestedEvent.OutputTuple,
       SetRequestedEvent.OutputObject
@@ -634,6 +577,17 @@ export interface Bridge extends BaseContract {
       WhitelistUpdatedEvent.InputTuple,
       WhitelistUpdatedEvent.OutputTuple,
       WhitelistUpdatedEvent.OutputObject
+    >;
+
+    "setValueRange(uint8,uint256)": TypedContractEvent<
+      setValueRangeEvent.InputTuple,
+      setValueRangeEvent.OutputTuple,
+      setValueRangeEvent.OutputObject
+    >;
+    setValueRange: TypedContractEvent<
+      setValueRangeEvent.InputTuple,
+      setValueRangeEvent.OutputTuple,
+      setValueRangeEvent.OutputObject
     >;
   };
 }
