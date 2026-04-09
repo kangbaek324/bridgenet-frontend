@@ -23,7 +23,7 @@ export async function register(): Promise<void> {
         let nonce = nonceRes.data.data.nonce;
         const message = "Welcome to Bridgenet !\n\nRegister With " + nonce;
 
-        const signature = await window.ethereum.request({
+        const signature = await window.ethereum!.request({
             method: 'personal_sign',
             params: [message, address],
         });
@@ -33,9 +33,9 @@ export async function register(): Promise<void> {
             address: address,
             signatureData: signature
         });
-    } catch (err) {
+    } catch (err: any) {
         console.error("Wallet Auth Error", err);
-        alert(err.response.data.message);
+        alert(err?.response?.data?.message);
         throw err;
     }
 }
@@ -51,7 +51,7 @@ export async function login() {
         let nonce = nonceRes.data.data.nonce;
         const message = "Welcome to Bridgenet !\n\nLogin With " + nonce;
 
-        const signature = await window.ethereum.request({
+        const signature = await window.ethereum!.request({
             method: 'personal_sign',
             params: [message, address],
         });
@@ -65,9 +65,9 @@ export async function login() {
 
         localStorage.setItem("accessToken", loginRes.data.data.accessToken);
 
-    } catch (err) {
+    } catch (err: any) {
         console.error("Wallet Auth Error", err);
-        alert(err.response.data.message);
+        alert(err?.response?.data?.message);
         throw err;
     }
 }
