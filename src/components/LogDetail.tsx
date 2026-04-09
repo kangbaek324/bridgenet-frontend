@@ -35,7 +35,7 @@ function truncateHash(hash: string) {
     return `${hash.slice(0, 10)}...${hash.slice(-8)}`;
 }
 
-function StatusBadge({ value, type }: { value: string; type: 'approve' | 'bridge' | 'tx' }) {
+function StatusBadge({ value }: { value: string }) {
     const colorMap: Record<string, string> = {
         APPROVE: 'text-green-400',
         REJECT: 'text-red-400',
@@ -78,11 +78,11 @@ export default function LogDetail({ detail, onClose }: LogDetailProps) {
                 <div className="flex gap-4 mb-5">
                     <div className="flex-1 p-3 rounded-lg bg-gray-800 border border-gray-700">
                         <p className="text-xs text-gray-400 mb-1">Approve Status</p>
-                        <StatusBadge value={detail.approveStatus} type="approve" />
+                        <StatusBadge value={detail.approveStatus} />
                     </div>
                     <div className="flex-1 p-3 rounded-lg bg-gray-800 border border-gray-700">
                         <p className="text-xs text-gray-400 mb-1">Bridge Status</p>
-                        <StatusBadge value={detail.bridgeStatus} type="bridge" />
+                        <StatusBadge value={detail.bridgeStatus} />
                     </div>
                     <div className="flex-1 p-3 rounded-lg bg-gray-800 border border-gray-700">
                         <p className="text-xs text-gray-400 mb-1">Created At</p>
@@ -130,7 +130,7 @@ export default function LogDetail({ detail, onClose }: LogDetailProps) {
                                             <span className="text-[10px] text-gray-500">
                                                 Block {tx.processedBlock ?? '-'}
                                             </span>
-                                            <StatusBadge value={tx.status} type="tx" />
+                                            <StatusBadge value={tx.status} />
                                         </div>
                                     ))}
                                 </div>
