@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import Log from "../components/Log";
 import Ranking from "../components/Ranking";
@@ -16,7 +16,8 @@ const TABS: { key: Tab; label: string; short: string }[] = [
 
 export default function ExplorePage() {
   const navigate = useNavigate();
-  const [currentTab, setCurrentTab] = useState<Tab>("log");
+  const location = useLocation();
+  const [currentTab, setCurrentTab] = useState<Tab>((location.state?.tab as Tab) ?? "log");
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleTabChange = (tab: Tab) => {
@@ -64,12 +65,12 @@ export default function ExplorePage() {
 
           {/* 콘텐츠 */}
           <div
-            className={`p-4 sm:p-8 transition-opacity duration-200 ${isTransitioning ? "opacity-0" : "opacity-100"}`}
-            style={{ minHeight: 600 }}
+            className={`p-4 sm:p-8 transition-opacity duration-200 overflow-y-auto ${isTransitioning ? "opacity-0" : "opacity-100"}`}
+            style={{ height: 720 }}
           >
             {currentTab === "log"      && <Log />}
             {currentTab === "ranking"  && <Ranking />}
-            {currentTab === "contract" && <Contract />}
+            {currentTab === "contract" && <Contract onTabChange={handleTabChange} />}
             {currentTab === "my"       && <My />}
           </div>
         </div>

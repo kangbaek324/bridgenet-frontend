@@ -11,6 +11,14 @@ export default function Log() {
     const [data, setData]           = useState<any[]>([]);
     const [rawData, setRawData]     = useState<any>(null);
     const [loading, setLoading]     = useState(false);
+    const [chains, setChains]       = useState<{ chainId: number; chainName: string }[]>([]);
+
+    useEffect(() => {
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/chains`)
+            .then(r => r.json())
+            .then(res => setChains(res.data.list))
+            .catch(() => {});
+    }, []);
 
     useEffect(() => { fetchLogs(); }, [chain, status, page, direction]);
     useEffect(() => { if (chain === "all") setDirection("all"); }, [chain]);
@@ -53,8 +61,9 @@ export default function Log() {
                 <div className="flex flex-wrap items-center gap-2">
                     <select value={chain} onChange={(e) => { setChain(e.target.value); setPage(1); }} className={sel}>
                         <option value="all">All Chains</option>
-                        <option value="11155111">Sepolia</option>
-                        <option value="80002">Amoy</option>
+                        {chains.map(c => (
+                            <option key={c.chainId} value={c.chainId.toString()}>{c.chainName}</option>
+                        ))}
                     </select>
                     {chain !== "all" && (
                         <select value={direction} onChange={(e) => setDirection(e.target.value)} className={sel}>
@@ -73,7 +82,7 @@ export default function Log() {
             </div>
 
             {/* ── 테이블 카드 ── */}
-            <div className="rounded-xl border border-white/8 overflow-hidden">
+            <div className="rounded-xl border border-white/8 overflow-auto">
 
                 {/* 테이블 헤더 바 */}
                 <div className="flex items-center justify-between px-4 py-2 bg-white/3 border-b border-white/8">

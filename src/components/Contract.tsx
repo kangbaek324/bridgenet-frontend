@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ContractItem from "./ContractItem";
 import axios from "axios";
 
-export default function Contract() {
+export default function Contract({ onTabChange }: { onTabChange?: (tab: "log" | "ranking" | "contract" | "my") => void }) {
     const [chainInfo, setChainInfo] = useState<any[]>([]);
 
     const fetchChains = () => {
@@ -24,7 +24,7 @@ export default function Contract() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {chainInfo.map((chain, i) => (
-                    <ContractItem key={i} chainInfo={chain} onRefresh={fetchChains} />
+                    <ContractItem key={i} chainInfo={chain} onRefresh={fetchChains} onGoToMyAccount={() => onTabChange?.("my")} />
                 ))}
             </div>
         </div>

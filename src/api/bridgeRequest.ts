@@ -19,17 +19,21 @@ const NETWORK_PARAMS: Record<string, any> = {
 };
 
 async function switchNetwork(chainId: string) {
+  const networkParams = NETWORK_PARAMS[chainId];
+  if (!networkParams) {
+    throw new Error(`Unsupported chain: ${chainId}`);
+  }
   try {
     await window.ethereum!.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId: NETWORK_PARAMS[chainId].chainId }],
+      params: [{ chainId: networkParams.chainId }],
     });
   } catch (error: any) {
     if (error.code === 4902) {
       try {
         await window.ethereum!.request({
           method: "wallet_addEthereumChain",
-          params: [NETWORK_PARAMS[chainId]],
+          params: [networkParams],
         });
       } catch {
         throw new Error("Failed to add network. Please check MetaMask.");
@@ -88,7 +92,13 @@ export async function bridgeRequest(
   const provider = new BrowserProvider(window.ethereum!);
   const signer = await provider.getSigner();
   const contract = Bridge__factory.connect(contractAddress, signer);
-  const sendValue = parseEther(value);
+
+  let sendValue;
+  try {
+    sendValue = parseEther(value);
+  } catch {
+    throw new Error("Invalid amount entered.");
+  }
 
   try {
     const tx = await contract.request(toChainId, { value: sendValue });
@@ -114,6 +124,10 @@ export async function bridgeRequest(
 
     if (error.code === "INSUFFICIENT_FUNDS" || error?.info?.error?.message?.includes("insufficient funds")) {
       throw new Error("Insufficient wallet balance.");
+    }
+
+    if (error.code === "CALL_EXCEPTION" && !error?.data) {
+      throw new Error("Transaction failed. You may not be whitelisted on this chain's contract.");
     }
 
     throw new Error(error?.shortMessage ?? error?.message ?? "An unknown error occurred.");
