@@ -18,7 +18,8 @@ function InfoRow({ label, children }: { label: string; children: React.ReactNode
     );
 }
 
-export default function ContractItem({ chainInfo, onRefresh }: { chainInfo: any; onRefresh?: () => void }) {
+export default function ContractItem({ chainInfo, onRefresh, onGoToMyAccount }: { chainInfo: any; onRefresh?: () => void; onGoToMyAccount?: () => void }) {
+    const isLoggedIn = !!localStorage.getItem("accessToken");
     const [loading, setLoading]           = useState(false);
     const [result, setResult]             = useState<{ ok: boolean; msg: string } | null>(null);
     const [isWhitelisted, setIsWhitelisted] = useState<boolean | null>(null);
@@ -106,14 +107,14 @@ export default function ContractItem({ chainInfo, onRefresh }: { chainInfo: any;
             {/* 버튼 */}
             <div className="flex gap-2 px-4 py-3 bg-white/2 border-t border-white/5">
                 <button
-                    onClick={doWhitelist}
+                    onClick={!isLoggedIn ? onGoToMyAccount : doWhitelist}
                     disabled={loading || isWhitelisted === true}
                     title={isWhitelisted ? "Already whitelisted" : undefined}
                     className="flex-1 py-2 text-xs slow-font border rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed
                         text-blue-400 border-blue-500/30 hover:bg-blue-500/10
                         disabled:text-gray-500 disabled:border-white/10"
                 >
-                    {loading ? "Processing..." : isWhitelisted ? "Already Whitelisted" : "Request Whitelist"}
+                    {loading ? "Processing..." : !isLoggedIn ? "Please login and request whitelist access" : isWhitelisted ? "Already Whitelisted" : "Request Whitelist"}
                 </button>
                 <button onClick={doRefresh} disabled={loading}
                     className="flex-1 py-2 text-xs slow-font text-gray-400 border border-white/10 rounded-lg hover:bg-white/8 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">

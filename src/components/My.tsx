@@ -76,6 +76,9 @@ export default function My() {
                     )}
                 </div>
             </div>
+            <p className="text-xs text-blue-400 slow-font text-center mt-4">
+                To use the bridge, register your whitelist in the Contracts tab
+            </p>
         </div>
     );
 }

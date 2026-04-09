@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import BridgeItem from "./BridgeItem";
 import { bridgeRequest } from "../api/bridgeRequest";
 import axios from "axios";
@@ -16,6 +17,7 @@ interface Toast {
 }
 
 export default function Bridge() {
+  const navigate = useNavigate();
   const [chains, setChains] = useState<ChainInfo[]>([]);
   const [chainsLoading, setChainsLoading] = useState(true);
   const [fromChainId, setFromChainId] = useState<string>("");
@@ -23,6 +25,7 @@ export default function Bridge() {
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState("");
   const [connectedWallet, setConnectedWallet] = useState<string>("");
+  const isLoggedIn = !!localStorage.getItem("accessToken");
   const [buttonValue, setButtonValue] = useState("Connect Wallet");
   const [toast, setToast] = useState<Toast | null>(null);
 
@@ -50,6 +53,20 @@ export default function Bridge() {
     }
   };
 
+  function handleFromChainChange(chainId: string) {
+    setFromChainId(chainId);
+    if (chainId === toChainId) {
+      setToChainId(fromChainId);
+    }
+  }
+
+  function handleToChainChange(chainId: string) {
+    setToChainId(chainId);
+    if (chainId === fromChainId) {
+      setFromChainId(toChainId);
+    }
+  }
+
   async function handleBridgeButton() {
     if (buttonValue === "Connect Wallet") {
       if (!window.ethereum) {
@@ -67,8 +84,16 @@ export default function Bridge() {
       showToast("error", "Selected chain not found.");
       return;
     }
+    if (!fromChain.smartContractAddress) {
+      showToast("error", "Contract address not found for selected chain.");
+      return;
+    }
     if (!toChainId) {
       showToast("error", "Please select a destination chain.");
+      return;
+    }
+    if (fromChainId === toChainId) {
+      showToast("error", "Source and destination chains must be different.");
       return;
     }
     if (!value || isNaN(Number(value)) || Number(value) <= 0) {
@@ -80,6 +105,7 @@ export default function Bridge() {
     try {
       await bridgeRequest(fromChainId, toChainId, value, fromChain.smartContractAddress);
       showToast("success", "Transaction submitted successfully!");
+      setValue("");
     } catch (err: any) {
       showToast("error", err.message ?? "An unknown error occurred.");
     } finally {
@@ -131,7 +157,7 @@ export default function Bridge() {
         chains={chains}
         chainsLoading={chainsLoading}
         selectedChain={fromChainId}
-        onChainChange={setFromChainId}
+        onChainChange={handleFromChainChange}
         value={value}
         onValueChange={setValue}
       />
@@ -140,7 +166,7 @@ export default function Bridge() {
         chains={chains}
         chainsLoading={chainsLoading}
         selectedChain={toChainId}
-        onChainChange={setToChainId}
+        onChainChange={handleToChainChange}
         value={value}
         readOnly={true}
       />
@@ -152,9 +178,9 @@ export default function Bridge() {
       <button
         disabled={loading || chainsLoading}
         className="w-full p-3 pb-4 text-lg leading-5 text-black transition-colors bg-white rounded-lg slow-font hover:bg-gray-100 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        onClick={handleBridgeButton}
+        onClick={!isLoggedIn ? () => navigate("/explore", { state: { tab: "my" } }) : handleBridgeButton}
       >
-        {loading ? "Processing..." : buttonValue}
+        {loading ? "Processing..." : !isLoggedIn ? "Please login and request whitelist access" : buttonValue}
       </button>
     </div>
   );
